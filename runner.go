@@ -66,8 +66,8 @@ func (s *Shell) call_command(cmd Command, strargs []string) {
 	}
 
 	for i := 0; i < f.NumIn(); i++ {
-		//t := f.In(i).Kind()
-		args[i] = reflect.ValueOf(strargs[i])
+		t := f.In(i)
+		args[i] = reflect.ValueOf(strargs[i]).Convert(t)
 	}
 	method.Call(args)
 }
