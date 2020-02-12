@@ -1,6 +1,6 @@
 # runner
 CLI runner for golang programs
-![Example Run](https://raw.githubusercontent.com/baileywickham/runner/runner.png)
+![Example Run](https://raw.githubusercontent.com/baileywickham/runner/master/runner.png)
 
 
 ## Usage
