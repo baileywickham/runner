@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -50,6 +51,7 @@ func (s *Shell) Start() {
 		cmd, ok := s.Commands[tokens[0]]
 		if !ok {
 			println("Command not found")
+			continue
 		}
 		s.call_command(cmd, tokens[1:])
 	}
@@ -67,9 +69,42 @@ func (s *Shell) call_command(cmd Command, strargs []string) {
 
 	for i := 0; i < f.NumIn(); i++ {
 		t := f.In(i)
-		args[i] = reflect.ValueOf(strargs[i]).Convert(t)
+		switch t.Kind().String() {
+		case "bool", "Bool":
+			arg, err := strconv.ParseBool(strargs[i])
+			args[i] = reflect.ValueOf(arg).Convert(t)
+			if err != nil {
+				goto Err
+			}
+		case "int", "Int", "Int8", "Int16", "Int32", "Int64":
+			arg, err := strconv.ParseInt(strargs[i], 0, 0) // need to change to size
+			if err != nil {
+				goto Err
+			}
+			// needs to be changed
+			args[i] = reflect.ValueOf(int(arg))
+		case "uint", "Uint", "Uint8", "Uint16", "Uint32", "Uint64":
+			arg, err := strconv.ParseUint(strargs[i], 0, 0)
+			if err != nil {
+				goto Err
+			}
+			args[i] = reflect.ValueOf(arg).Convert(t)
+		case "float", "Float32", "Float64":
+			arg, err := strconv.ParseFloat(strargs[i], 0)
+			if err != nil {
+				goto Err
+			}
+			args[i] = reflect.ValueOf(arg).Convert(t)
+		default:
+			// panics on failure, probably not good
+			args[i] = reflect.ValueOf(strargs[i]).Convert(t)
+		}
 	}
 	method.Call(args)
+	return
+
+Err:
+	println("ERROR CONVERTING TYPES")
 }
 
 func (s *Shell) print_help() {
