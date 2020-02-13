@@ -12,8 +12,12 @@ func main() {
 	c2 := r.Command{
 		Cmd:      "addTen",
 		Callback: addTen,
-		Helptext: "addTen: takes and int and adds 10"}
-	shell.Add_command(c1, c2) // Add command uses variadic arguments
+		Helptext: "addTen: takes an int and adds 10"}
+	c3 := r.Command{
+		Cmd:      "and",
+		Callback: and,
+		Helptext: "and: prints boolean and of a and b"}
+	shell.Add_command(c1, c2, c3) // Add command uses variadic arguments
 	shell.Start()
 
 }
@@ -24,4 +28,8 @@ func echo(s string) {
 
 func addTen(i int) {
 	println(i + 10)
+}
+
+func and(a, b bool) {
+	println(a && b)
 }

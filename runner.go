@@ -44,7 +44,7 @@ func (s *Shell) Start() {
 			continue
 		}
 		if tokens[0] == "help" {
-			s.print_help()
+			s.print_help() // class method, must be checked here
 			continue
 		}
 
@@ -113,7 +113,14 @@ func (s *Shell) print_help() {
 	}
 }
 
+func shell_exit() {
+	os.Exit(0)
+}
+
 func NewShell() Shell {
 	m := make(map[string]Command)
-	return Shell{m}
+	c1 := Command{"exit", shell_exit, "exit: exit runner"}
+	s := Shell{m}
+	s.Add_command(c1)
+	return s
 }
