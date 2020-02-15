@@ -5,7 +5,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
-	"strings"
+	"unicode"
 )
 
 type Shell struct {
@@ -38,7 +38,8 @@ func (s *Shell) Start() {
 		// readsting error connot occur for my use case
 		text, _ := reader.ReadString('\n')
 		history = append(history, text)
-		tokens := strings.Fields(text)
+		//tokens := strings.Fields(text)
+		tokens := parseLine(text)
 		if len(tokens) == 0 {
 			s.print_help()
 			continue
@@ -113,14 +114,37 @@ func (s *Shell) print_help() {
 	}
 }
 
-func shell_exit() {
-	os.Exit(0)
-}
-
 func NewShell() Shell {
 	m := make(map[string]Command)
-	c1 := Command{"exit", shell_exit, "exit: exit runner"}
+	c1 := Command{"exit", os.Exit, "exit: exit runner"}
 	s := Shell{m}
 	s.Add_command(c1)
 	return s
+}
+
+func parseLine(str string) []string {
+	parsed := make([]string, 0)
+	token := ""
+	quoted := false
+	for _, char := range str {
+
+		if char == '"' {
+			if quoted {
+				parsed = append(parsed, token)
+			} else {
+				quoted = true
+				continue
+			}
+		}
+
+		if unicode.IsSpace(rune(char)) {
+			if !quoted && token != "" {
+				parsed = append(parsed, token)
+				token = ""
+				continue
+			}
+		}
+		token = token + string(char)
+	}
+	return parsed
 }
