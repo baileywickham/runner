@@ -110,13 +110,13 @@ Err:
 
 func (s *Shell) print_help() {
 	for _, command := range s.Commands {
-		println(command.Helptext)
+		println(command.Cmd+":", command.Helptext)
 	}
 }
 
 func NewShell() Shell {
 	m := make(map[string]Command)
-	c1 := Command{"exit", os.Exit, "exit: exit runner"}
+	c1 := Command{"exit", os.Exit, "exit runner"}
 	s := Shell{m}
 	s.Add_command(c1)
 	return s
