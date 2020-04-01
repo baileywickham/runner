@@ -29,6 +29,24 @@ func (s *Shell) Add_command(cmds ...Command) {
 	}
 }
 
+func (s *Shell) Flags() {
+	if len(os.Args) == 1 {
+		println("Must specify command in Flag mode")
+		s.print_help()
+		return
+	}
+	cmd, ok := s.Commands[os.Args[1]]
+	if !ok {
+		println("Command not found")
+		return
+	}
+	if len(os.Args) > 2 {
+		s.call_command(cmd, os.Args[2:])
+	} else {
+		s.call_command(cmd, nil)
+	}
+}
+
 func (s *Shell) Start() {
 	println("Entering Runner")
 	reader := bufio.NewReader(os.Stdin)
