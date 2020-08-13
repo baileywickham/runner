@@ -17,6 +17,8 @@ type Command struct {
 	Helptext string
 }
 
+var prompt string = ":|: "
+
 // dangerous...
 type Callback interface{}
 
@@ -37,7 +39,7 @@ func (s *Shell) Flags() {
 	}
 	cmd, ok := s.Commands[os.Args[1]]
 	if !ok {
-		println("Command not found")
+		println(os.Args[1], "Command not found")
 		return
 	}
 	if len(os.Args) > 2 {
@@ -50,9 +52,9 @@ func (s *Shell) Flags() {
 func (s *Shell) Start() {
 	println("Entering Runner")
 	reader := bufio.NewReader(os.Stdin)
-	var history []string
+	var history []string // Not yet implimented
 	for {
-		print(":|: ")
+		print(prompt)
 		// readsting error connot occur for my use case
 		text, _ := reader.ReadString('\n')
 		history = append(history, text)
@@ -69,7 +71,7 @@ func (s *Shell) Start() {
 
 		cmd, ok := s.Commands[tokens[0]]
 		if !ok {
-			println("Command not found")
+			println(tokens[0], "Command not found")
 			continue
 		}
 		s.call_command(cmd, tokens[1:])
