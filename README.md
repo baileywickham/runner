@@ -9,8 +9,6 @@ See `example/` for example program
 
 Support for argument parsing is extreamly limited. Working on that now...
 
-Support for strings with spaces in them is also nonexistant. Also working on that
-
 Here is a default configuration:
 ```golang
 import r "github.com/baileywickham/runner"
