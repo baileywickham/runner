@@ -26,7 +26,8 @@ func main() {
                 Helptext: "takes and int and adds 10"}
 
         shell.Add_command(c1, c2) // Add command uses variadic arguments
-        shell.Start()
+        shell.Flags() // Parse from cli flags instead of runner
+        shell.Start() // Parse from runner, a shell like interface
 
 }
 
