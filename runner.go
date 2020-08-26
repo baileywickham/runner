@@ -2,6 +2,7 @@ package runner
 
 import (
 	"bufio"
+	"errors"
 	"os"
 	"reflect"
 	"strconv"
@@ -87,42 +88,50 @@ func (s *Shell) call_command(cmd Command, strargs []string) {
 
 	for i := 0; i < f.NumIn(); i++ {
 		t := f.In(i)
-		switch t.Kind().String() {
-		case "bool", "Bool":
-			arg, err := strconv.ParseBool(strargs[i])
-			args[i] = reflect.ValueOf(arg).Convert(t)
-			if err != nil {
-				goto Err
-			}
-		case "int", "Int", "Int8", "Int16", "Int32", "Int64":
-			arg, err := strconv.ParseInt(strargs[i], 0, 0) // need to change to size
-			if err != nil {
-				goto Err
-			}
-			// needs to be changed
-			args[i] = reflect.ValueOf(int(arg))
-		case "uint", "Uint", "Uint8", "Uint16", "Uint32", "Uint64":
-			arg, err := strconv.ParseUint(strargs[i], 0, 0)
-			if err != nil {
-				goto Err
-			}
-			args[i] = reflect.ValueOf(arg).Convert(t)
-		case "float", "Float32", "Float64":
-			arg, err := strconv.ParseFloat(strargs[i], 0)
-			if err != nil {
-				goto Err
-			}
-			args[i] = reflect.ValueOf(arg).Convert(t)
-		default:
-			// panics on failure, probably not good
-			args[i] = reflect.ValueOf(strargs[i]).Convert(t)
+		v, err := convert_types(t, strargs[i])
+		if err != nil {
+			println(err.Error())
+			continue
 		}
+		args[i] = v
 	}
 	method.Call(args)
-	return
+}
+
+func convert_types(to reflect.Type, arg string) (reflect.Value, error) {
+	switch to.Kind().String() {
+	case "bool", "Bool":
+		arg, err := strconv.ParseBool(arg)
+		if err != nil {
+			goto Err
+		}
+		return reflect.ValueOf(arg).Convert(to), nil
+	case "int", "Int", "Int8", "Int16", "Int32", "Int64":
+		arg, err := strconv.ParseInt(arg, 0, 0) // need to change to size
+		if err != nil {
+			goto Err
+		}
+		// needs to be changed
+		return reflect.ValueOf(int(arg)), nil
+	case "uint", "Uint", "Uint8", "Uint16", "Uint32", "Uint64":
+		arg, err := strconv.ParseUint(arg, 0, 0)
+		if err != nil {
+			goto Err
+		}
+		return reflect.ValueOf(arg).Convert(to), nil
+	case "float", "Float32", "Float64":
+		arg, err := strconv.ParseFloat(arg, 0)
+		if err != nil {
+			goto Err
+		}
+		return reflect.ValueOf(arg).Convert(to), nil
+	default:
+		// panics on failure, probably not good
+		return reflect.ValueOf(arg).Convert(to), nil
+	}
 
 Err:
-	println("ERROR CONVERTING TYPES")
+	return reflect.Value{}, errors.New("Connot convert type to argument")
 }
 
 func (s *Shell) print_help() {
@@ -133,10 +142,10 @@ func (s *Shell) print_help() {
 
 func NewShell() Shell {
 	m := make(map[string]Command)
-	c1 := Command{"exit", os.Exit, "exit runner"}
 	s := Shell{m}
-	s.Add_command(c1)
-	s.Add_command(Command{"help", s.print_help, "print list of cammands"})
+	s.Add_command(
+		Command{"exit", os.Exit, "exit runner"},
+		Command{"help", s.print_help, "print list of cammands"})
 	return s
 }
 
