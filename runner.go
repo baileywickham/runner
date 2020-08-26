@@ -58,14 +58,10 @@ func (s *Shell) Start() {
 		// readsting error connot occur for my use case
 		text, _ := reader.ReadString('\n')
 		history = append(history, text)
-		//tokens := strings.Fields(text)
+
 		tokens := parseLine(text)
 		if len(tokens) == 0 {
 			s.print_help()
-			continue
-		}
-		if tokens[0] == "help" {
-			s.print_help() // class method, must be checked here
 			continue
 		}
 
@@ -84,8 +80,9 @@ func (s *Shell) call_command(cmd Command, strargs []string) {
 	method := reflect.ValueOf(cmd.Callback)
 	args := make([]reflect.Value, f.NumIn())
 
-	if len(strargs) != f.NumIn() {
-		println("Error calling ", cmd.Cmd)
+	if len(strargs) < f.NumIn() {
+		println("Error calling, invalid paramaters", cmd.Cmd)
+		return
 	}
 
 	for i := 0; i < f.NumIn(); i++ {
@@ -139,6 +136,7 @@ func NewShell() Shell {
 	c1 := Command{"exit", os.Exit, "exit runner"}
 	s := Shell{m}
 	s.Add_command(c1)
+	s.Add_command(Command{"help", s.print_help, "print list of cammands"})
 	return s
 }
 
