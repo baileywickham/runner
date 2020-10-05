@@ -22,7 +22,8 @@ func main() {
 				println("Hello World!")
 			},
 			Helptext: "prints hello world!"})
-	shell.Flags()
+
+	// Flags mode: shell.Flags()
 	shell.Start()
 
 }

@@ -52,6 +52,7 @@ func (s *Shell) Flags() {
 
 func (s *Shell) Start() {
 	println("Entering Runner")
+	s.Add_command(Command{"exit", func() { os.Exit(0) }, "exit runner"})
 	reader := bufio.NewReader(os.Stdin)
 	var history []string // Not yet implimented
 	for {
@@ -144,8 +145,7 @@ func NewShell() Shell {
 	m := make(map[string]Command)
 	s := Shell{m}
 	s.Add_command(
-		Command{"exit", os.Exit, "exit runner"},
-		Command{"help", s.print_help, "print list of cammands"})
+		Command{"help", s.print_help, "print list of commands"})
 	return s
 }
 
